@@ -70,7 +70,7 @@ function HostNetworkSession:chk_server_joinable_state()
 		if BaseNetworkHandler._gamestate_filter.lobby[game_state_name] then
 			managers.network.matchmake:set_server_joinable(true)
 			return
-		elseif managers.groupai and not managers.groupai:state():chk_allow_drop_in() or not Global.game_settings.drop_in_allowed then
+		elseif not (not managers.groupai or managers.groupai:state():chk_allow_drop_in()) or not Global.game_settings.drop_in_allowed then
 			managers.network.matchmake:set_server_joinable(false)
 			return
 		end

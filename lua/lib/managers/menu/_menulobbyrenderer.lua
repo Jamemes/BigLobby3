@@ -60,7 +60,7 @@ function MenuLobbyRenderer:open(...)
 	if is_server then
 		local level = managers.experience:current_level()
 		local rank = managers.experience:current_rank()
-		local join_stinger_index = managers.infamy:selected_join_stinger_index()
+		local join_stinger_index = managers.infamy.selected_join_stinger_index and managers.infamy:selected_join_stinger_index() 
 
 		self:_set_player_slot(1, {
 			character = "random",
