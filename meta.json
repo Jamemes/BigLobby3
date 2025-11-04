@@ -1,7 +1,7 @@
 [
     {
         "ident": "biglobby3-classic",
-        "version": "testing",
+        "version": "testing_1",
         "patchnotes_url": "https://github.com/Jamemes/BigLobby3/commits/classic",
         "download_url": "https://github.com/Jamemes/BigLobby3/archive/refs/heads/classic.zip"
     }
