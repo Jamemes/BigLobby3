@@ -1,22 +1,35 @@
 -- Modified to support displaying additional peers loadouts.
 -- TODO: This becomes undesirable the larger the player count and requires a reworked UI.
-function TeamLoadoutItem:init(panel, text, i)
-	local num_player_slots = BigLobbyGlobals:num_player_slots()
 
+local max_slots_in_column = 8
+local num_player_slots = BigLobbyGlobals:num_player_slots()
+local column = math.ceil(num_player_slots / max_slots_in_column)
+function TeamLoadoutItem:init(panel, text, i)
 	-- Only code changed was replacing two hardcoded values of 4 with the variable num_player_slots
 	TeamLoadoutItem.super.init(self, panel, text, i)
 	self._player_slots = {}
-	local quarter_width = self._panel:w() / num_player_slots
+	local quarter_width = self._panel:w() / math.min(max_slots_in_column, num_player_slots)
+	
+	local x = 0
+	local y = 0
 	local slot_panel
 	for i = 1, num_player_slots do
-		local old_right = slot_panel and slot_panel:right() or 0
+		local slot_height = self._panel:h() / column
 		slot_panel = self._panel:panel({
-			x = old_right,
-			y = 0,
+			x = x,
+			y = y,
 			w = quarter_width,
-			h = self._panel:h(),
+			h = slot_height,
 			valign = "grow"
 		})
+		
+		if x + slot_panel:w() < self._panel:w() then
+			x = x + slot_panel:w()
+		else
+			y = y + slot_height
+			x = 0
+		end
+
 		self._player_slots[i] = {}
 		self._player_slots[i].panel = slot_panel
 		self._player_slots[i].outfit = {}
@@ -28,12 +41,15 @@ function TeamLoadoutItem:init(panel, text, i)
 				local character = kit_slot.params and kit_slot.params.character
 				if outfit and character then
 					self:set_slot_outfit(i, character, outfit)
+					local heister_name = self._player_slots[i].panel:child(0)
+					local padding_scaled = math.min(8, num_player_slots)
+					heister_name:set_font_size(heister_name:font_size() - (padding_scaled))
+					heister_name:set_lefttop(heister_name:left() - padding_scaled, heister_name:top() - padding_scaled)
 				end
 			end
 		end
 	end
 end
-
 
 -- Modified to support additional players. Seems to just reduce font size when needed?
 function TeamLoadoutItem:reduce_to_small_font(iteration)

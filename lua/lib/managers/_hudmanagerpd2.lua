@@ -1,9 +1,13 @@
 -- This references 4 as in the 4th panel on the UI(one on the furtherest right) by default.
 -- Otherwise known as the local players UI panel.
 -- By updating this value, we keep that consistency that the player is used to.
-HUDManager.PLAYER_PANEL = BigLobbyGlobals:num_player_slots()
+-- HUDManager.PLAYER_PANEL = BigLobbyGlobals:num_player_slots()
 if BL2Options then return end
 --Nothing seems to call this, I don't think it's even used.. Panels are created somewhere else
+local max_slots_in_column = 8
+local num_player_slots = BigLobbyGlobals:num_player_slots()
+-- local scale = 1 - (math.min(max_slots_in_column, num_player_slots - 4) * 0.1)
+-- log(scale)
 function HUDManager:_create_teammates_panel(hud)
 	hud = hud or managers.hud:script(PlayerBase.PLAYER_INFO_HUD_PD2)
 	self._hud.teammate_panels_data = self._hud.teammate_panels_data or {}
@@ -19,21 +23,29 @@ function HUDManager:_create_teammates_panel(hud)
 		halign = "grow",
 		valign = "bottom"
 	})
-	local teammate_w = 204
-	local player_gap = 240
-	local small_gap = (teammates_panel:w() - player_gap - teammate_w * HUDManager.PLAYER_PANEL) / (HUDManager.PLAYER_PANEL - 1)
-	for i = 1, HUDManager.PLAYER_PANEL do
+	
+	local x = 0
+	local y = teammates_panel:h()
+	for i = 1, num_player_slots do
 		local is_player = i == HUDManager.PLAYER_PANEL
-		--do break end -- unhandled boolean indicator -- Decompile error here, hopefully not causing problems.
-
 		self._hud.teammate_panels_data[i] = {
-			taken = false, --this was true, but causes problem with add_teammate_panel() and data.taken, so maybe bad decompile bug from above?
+			taken = false and is_player,
 			special_equipments = {}
 		}
-		local pw = teammate_w + (is_player and 0 or 64)
-		local teammate = HUDTeammate:new(i, teammates_panel, is_player, pw)
-		local x = math.floor((pw + small_gap) * (i - 1) + (i == HUDManager.PLAYER_PANEL and player_gap or 0))
-		teammate._panel:set_x(math.floor(x))
+		local teammate = HUDTeammate:new(i, teammates_panel, is_player, 204 + (is_player and 0 or 64))
+		if is_player then
+			teammate._panel:set_right(teammates_panel:right())
+		else
+			if max_slots_in_column > x then
+				x = x + 1
+			else
+				x = 1
+				y = y - teammate._panel:h() - (teammate._gap / 2)
+			end
+			
+			teammate._panel:set_rightbottom((teammate._panel:w() + teammate._gap) * x, y)
+		end
+
 		table.insert(self._teammate_panels, teammate)
 		if is_player then
 			teammate:add_panel()

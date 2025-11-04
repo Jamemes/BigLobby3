@@ -134,7 +134,7 @@ function bkin_bl__menu:RegisterHooks()
 			callback   = "bkin_bl__set_size__clbk",
 			value      = self._data.lobby_size,
 			min        = 4,
-			max        = 22,
+			max        = 24,
 			step       = 1,
 			show_value = true,
 			menu_id    = self.menu_id,
